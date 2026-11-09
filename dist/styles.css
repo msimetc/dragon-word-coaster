@@ -129,3 +129,10 @@
 
 /* The 2D motion canvas draws a second set of rails on top of the 3D rail; hide it while the 3D view runs. */
 .ride-scene.webgl-active .motion-canvas{display:none!important}
+
+/* Chinese night backdrop: indigo sky, vermilion haze over the mountains, jade ground. */
+.ride-scene{background:radial-gradient(ellipse at 72% 26%,#a8322a55 0%,transparent 42%),radial-gradient(ellipse at 20% 80%,#1f5f5a66 0%,transparent 50%),linear-gradient(#1a1636 0%,#2d1e4a 46%,#5a2a3c 60%,#133a3a 61%,#0b2222 100%)}
+
+/* Ride backdrop: the generated Chinese night city (pagodas, lanterns, mountains, fireworks).
+   Only the upper part is shown so the dragon head in the image does not compete with the 3D cockpit. */
+.ride-scene{background:linear-gradient(rgba(6,14,34,.12),rgba(6,14,34,.42)),url('./assets/dragon-coaster-pov.png') center top/auto 175% no-repeat #0b1a33}

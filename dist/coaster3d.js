@@ -143,6 +143,43 @@ if (host && window.WebGLRenderingContext) {
   cloudGeometry.setAttribute('position', new THREE.BufferAttribute(cloudPositions, 3));
   scene.add(new THREE.Points(cloudGeometry, new THREE.PointsMaterial({ color: 0xd5f7ff, size: 1.3, transparent: true, opacity: .16, depthWrite: false })));
 
+  // Chinese-style backdrop: pagoda towers on both sides of the course, set well away from the rail.
+  // The rail itself is not changed.
+  function buildPagoda(scale) {
+    const g = new THREE.Group();
+    const wall = new THREE.MeshStandardMaterial({ color: 0x7a1f1f, roughness: .6 });
+    const roof = new THREE.MeshStandardMaterial({ color: 0x1f4f57, roughness: .45, metalness: .2 });
+    const gold = new THREE.MeshStandardMaterial({ color: 0xffc857, emissive: 0x8a5a00, emissiveIntensity: .6 });
+    for (let i = 0; i < 3; i++) {
+      const w = (5 - i * 1.2) * scale, h = 3.2 * scale, y = i * 4.2 * scale;
+      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), wall);
+      body.position.y = y + h / 2;
+      g.add(body);
+      const eave = new THREE.Mesh(new THREE.ConeGeometry(w * .85, 1.6 * scale, 4), roof);
+      eave.rotation.y = Math.PI / 4;
+      eave.position.y = y + h + .8 * scale;
+      g.add(eave);
+    }
+    const spire = new THREE.Mesh(new THREE.ConeGeometry(.35 * scale, 3 * scale, 8), gold);
+    spire.position.y = 3 * 4.2 * scale + 2 * scale;
+    g.add(spire);
+    return g;
+  }
+  for (let i = 0; i < 12; i++) {
+    const t = (i + .5) / 12;
+    const p = curve.getPointAt(t);
+    const side = sideAt(curve.getTangentAt(t).normalize());
+    [-1, 1].forEach(dir => {
+      const pagoda = buildPagoda(1.6 + Math.random() * 1.2);
+      pagoda.position.copy(p).addScaledVector(side, dir * (24 + Math.random() * 8));
+      pagoda.position.y = floorY;
+      scene.add(pagoda);
+    });
+  }
+  const pagodaLight = new THREE.PointLight(0xff5a3c, 30, 90, 2);
+  pagodaLight.position.set(0, 12, -60);
+  scene.add(pagodaLight);
+
   const clock = new THREE.Clock();
   const LOOK_AHEAD = 14;          // world units ahead of the camera the view is aimed at
   const EYE_HEIGHT = 1.18;
