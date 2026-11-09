@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#071a36" />
+  <meta name="description" content="청룡열차를 타며 푸는 중국어 단어·문장 퀴즈" />
+  <title>청룡열차 단어 모험</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="sky" aria-hidden="true"><div class="moon"></div><div class="cloud c1"></div><div class="cloud c2"></div></div>
+  <main id="app" class="app-shell">
+    <header class="topbar">
+      <button id="homeBtn" class="brand" aria-label="첫 화면으로"><span>龍</span><strong>청룡열차</strong></button>
+      <div class="top-actions"><button id="soundBtn" class="icon-btn" aria-label="소리 켜기 또는 끄기">♪</button><button id="rankBtn" class="small-btn">랭킹</button></div>
+    </header>
+
+    <section id="startScreen" class="screen active hero-screen">
+      <div class="hero-copy">
+        <p class="eyebrow">CHINESE WORD ADVENTURE</p>
+        <h1>단어를 맞히면,<br><em>용이 날아오른<span class="hero-last-word">다!</span></em></h1>
+        <p class="lead">청룡열차를 타고 중국어 퀴즈에 도전하세요. 정답을 맞히면 힘차게 가속하며 승천하고, 틀리면 감속하며 아래로 내려갑니다.</p>
+        <div class="entry-card">
+          <label for="classCode">수업 코드</label>
+          <div class="code-row"><input id="classCode" maxlength="6" value="DEMO01" autocomplete="off" spellcheck="false" /><button id="enterBtn" class="primary">입장하기</button></div>
+          <p id="codeHint" class="hint">체험하려면 <b>DEMO01</b>을 입력하세요.</p>
+        </div>
+      </div>
+      <div class="hero-visual" aria-label="구름 위를 달리는 청룡열차">
+        <div class="halo"></div><img class="hero-dragon-image" src="./assets/dragon-coaster-hero-v2.png" alt="푸른 용의 머리와 네 개의 객차로 이루어진 청룡열차" />
+        <div class="hero-orbit one"></div><div class="hero-orbit two"></div><div class="lantern l1">福</div><div class="lantern l2">学</div>
+      </div>
+    </section>
+
+    <section id="profileScreen" class="screen panel-screen">
+      <div class="panel wide">
+        <div class="step-label">탑승 준비 1/2</div><h2>어떤 이름으로 도전할까요?</h2>
+        <label class="field-label" for="studentName">학생 이름 또는 별명</label>
+        <input id="studentName" class="name-input" maxlength="12" placeholder="예: 용감한 판다" autocomplete="off" />
+        <p class="privacy-note">개인정보 보호를 위해 실명보다 별명이나 번호를 권장합니다.</p>
+        <div class="actions"><button class="secondary" data-nav="start">뒤로</button><button id="toCharactersBtn" class="primary">캐릭터 고르기</button></div>
+      </div>
+    </section>
+
+    <section id="characterScreen" class="screen panel-screen">
+      <div class="panel character-panel">
+        <div class="step-label">탑승 준비 2/2</div><h2>함께 탈 친구를 골라주세요</h2><p class="sub">능력 차이는 없어요. 마음에 드는 친구면 충분해요!</p>
+        <div id="characterGrid" class="character-grid"></div>
+        <div class="actions"><button class="secondary" data-nav="profile">뒤로</button><button id="startGameBtn" class="primary" disabled>청룡열차 탑승!</button></div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen">
+      <div class="hud">
+        <div><small>진행</small><strong id="progressText">1 / 10</strong></div><div><small>시간</small><strong id="timerText">00:00.0</strong></div><div><small>속도</small><strong><span id="speedText">32</span> km/h</strong></div><div><small>콤보</small><strong id="comboText">0</strong></div>
+      </div>
+      <div class="progress-bar"><i id="progressFill"></i></div>
+      <div id="rideScene" class="ride-scene cruise">
+        <canvas id="motionCanvas" class="motion-canvas" aria-hidden="true"></canvas>
+        <div class="vr-world"><div class="slope-shot uphill-shot"></div><div class="slope-shot downhill-shot"></div><div class="vr-vignette"></div><div class="speed-lines"></div><div class="rail-glow left"></div><div class="rail-glow right"></div><div class="track-motion-grid"></div></div>
+        <div class="vr-cockpit"><div class="dragon-ridge"></div><div class="dragon-horn left"></div><div class="dragon-horn right"></div></div>
+        <div class="rider-chip"><span id="riderAvatar">🐼</span><small>탑승 중</small></div>
+        <div id="speedGauge" class="speed-gauge" aria-live="polite"><span id="streakLabel">주행 중</span><strong id="speedGaugeValue">32</strong><small>km/h</small><i><b id="speedNeedle"></b></i></div>
+        <div class="motion-blur"></div>
+        <div id="feedbackBurst" class="feedback-burst"></div>
+      </div>
+      <article id="quizCard" class="quiz-card">
+        <div class="quiz-meta"><span id="quizType">단어 뜻</span><button id="speakBtn" class="speak-btn" aria-label="중국어 발음 듣기">🔊 듣기</button></div>
+        <h2 id="questionText">苹果의 뜻은?</h2><p id="pinyinText" class="pinyin"></p>
+        <div id="answers" class="answers"></div><p id="explanation" class="explanation" aria-live="polite"></p>
+      </article>
+    </section>
+
+    <section id="resultScreen" class="screen panel-screen">
+      <div class="panel result-panel"><div class="finish-badge">FINISH!</div><div id="resultAvatar" class="result-avatar">🐼</div><h2 id="resultTitle">멋진 완주였어요!</h2>
+        <div class="result-time"><small>완주 기록</small><strong id="finalTime">00:00.0</strong></div>
+        <div class="stats"><div><strong id="correctStat">0</strong><span>정답</span></div><div><strong id="accuracyStat">0%</strong><span>정답률</span></div><div><strong id="bestComboStat">0</strong><span>최고 콤보</span></div></div>
+        <div id="mistakeBox" class="mistake-box"></div>
+        <div class="actions"><button id="retryBtn" class="secondary">다시 도전</button><button id="saveResultBtn" class="primary">기록 등록</button></div><p id="saveStatus" class="hint"></p>
+      </div>
+    </section>
+
+    <section id="rankingScreen" class="screen panel-screen"><div class="panel wide"><div class="step-label">CLASS RANKING</div><h2>청룡열차 명예의 전당</h2><p id="rankingSubtitle" class="sub">DEMO01 수업 랭킹</p><div id="rankingList" class="ranking-list"></div><div class="actions"><button class="secondary" data-nav="start">처음으로</button><button id="rankPlayBtn" class="primary">다시 도전</button></div></div></section>
+
+    <div id="ascensionScene" class="cinematic ascension-scene" aria-hidden="true">
+      <div class="ascension-sky"></div><div class="ascension-rays"></div><div id="ascensionAvatar" class="ascension-avatar">🐼</div>
+      <div class="cinematic-copy"><small>PERFECT RIDE</small><strong>모든 문제 정답! 청룡이 승천합니다!</strong></div>
+    </div>
+  </main>
+  <script src="./motion2d.js"></script>
+  <script src="./app.js"></script>
+  <script type="module" src="./coaster3d.js"></script>
+</body>
+</html>

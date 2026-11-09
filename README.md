@@ -1,27 +1,89 @@
-name: Deploy GitHub Pages
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-concurrency:
-  group: pages
-  cancel-in-progress: true
-jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+# 청룡열차 단어 모험
+
+중국어 단어와 문장 퀴즈를 청룡 모양 롤러코스터로 풀어보는 수업용 웹 게임입니다. 학생 화면은 GitHub Pages, 문제·수업·랭킹은 Google Sheets와 Google Apps Script로 운영합니다.
+
+## 현재 구현 기능
+
+- 8종 캐릭터 선택
+- 수업 코드 입장 (`DEMO01` 내장)
+- 단어 뜻·중국어 선택·병음·문장 뜻·빈칸 문제
+- 퀴즈 구간 시속 50km 안정 주행 후 답안 결과에 따라 가속·감속
+- 1인칭 청룡열차 화면과 정답 하강 가속·오답 상승 감속 전용 장면
+- 오른쪽 상단 상시 속도계와 연속 정답 추가 가속·연속 오답 추가 감속
+- Three.js 실시간 3D 레일, 침목, 등불과 속도 연동 카메라 이동
+- Canvas 기반 근거리 레일·침목·등불 무한 흐름과 속도 연동 패럴랙스
+- 3D 활성 시 정적 배경 자동 디밍 및 상승·하강 카메라 시선 보간
+- 완주 시간, 정답률, 콤보
+- 전 문제 완벽 정답 시에만 청룡열차 승천 축하 장면 (일부라도 틀리면 결과 화면으로 바로 이동)
+- 이름·캐릭터가 포함된 랭킹
+- GAS 미연결 시 브라우저 로컬 랭킹
+- Google Sheets 교사용 메뉴와 문제 검증
+- GAS 세션 기반 서버 시간 및 서버 채점
+
+## 바로 실행
+
+별도 빌드가 필요 없는 정적 프로젝트입니다. `dist/index.html`을 정적 서버로 실행하세요. 파일을 직접 열 수도 있지만 브라우저 보안 정책 때문에 로컬 서버를 권장합니다.
+
+```powershell
+npx serve dist
+```
+
+게임에서 수업 코드 `DEMO01`을 입력하면 GAS 없이 전체 흐름을 체험할 수 있습니다.
+
+## Google Sheets 설정
+
+1. 새 Google Sheets를 만듭니다.
+2. `확장 프로그램 > Apps Script`를 엽니다.
+3. `gas/Code.gs` 내용을 기본 코드 파일에 붙여넣습니다.
+4. 프로젝트 설정에서 매니페스트 표시를 켜고 `gas/appsscript.json` 내용으로 교체합니다.
+5. 시트로 돌아와 새로고침합니다.
+6. 상단의 `🐉 청룡열차 관리 > 초기 시트 만들기`를 실행합니다.
+7. 권한을 승인한 뒤 `샘플 문제 생성`과 `전체 문제 검증`을 실행합니다.
+
+## GAS 웹 앱 배포
+
+1. Apps Script에서 `배포 > 새 배포`를 선택합니다.
+2. 유형은 `웹 앱`을 선택합니다.
+3. 실행 사용자는 `나`, 액세스는 학생이 접근 가능한 범위로 설정합니다.
+4. 배포 후 `/exec`로 끝나는 웹 앱 URL을 복사합니다.
+5. `dist/app.js` 상단의 `CONFIG.apiUrl` 값에 URL을 입력합니다.
+
+```js
+const CONFIG = {
+  apiUrl: "https://script.google.com/macros/s/배포_ID/exec",
+  // ...
+};
+```
+
+웹 앱 URL은 학생 API 주소이므로 비밀 토큰이 아닙니다. Google 비밀번호, OAuth 클라이언트 시크릿, 서비스 계정 키는 절대 프런트엔드에 넣지 마세요.
+
+## 문제 작성
+
+`문제` 시트의 한 행이 한 문제입니다. 정답과 최소 오답1을 입력한 후 `전체 문제 검증`을 실행합니다. 정상 문제만 학생에게 출제됩니다.
+
+지원 유형: `단어뜻`, `중국어선택`, `병음선택`, `문장뜻`, `빈칸`, `듣기`
+
+`수업` 시트에는 문제세트 이름과 출제수를 입력하고 공개상태를 `공개`로 설정합니다. 코드는 혼동하기 쉬운 문자를 제외한 6자리로 생성할 수 있습니다.
+
+## GitHub Pages 배포
+
+1. 이 폴더를 GitHub 저장소 루트로 푸시합니다.
+2. 저장소 `Settings > Pages`에서 Source를 `GitHub Actions`로 설정합니다.
+3. `main` 브랜치에 푸시하면 `.github/workflows/pages.yml`이 `dist`를 배포합니다.
+4. `설정` 시트의 `게임URL`을 배포된 Pages 주소로 변경합니다.
+
+## 보안과 개인정보
+
+- 교사용 수정 기능은 Google Sheets 메뉴에만 있습니다.
+- 학생 API는 공개 수업 조회, 세션 시작, 배정된 문제의 답 확인, 결과 제출, 랭킹 조회만 제공합니다.
+- 정답은 시작 응답에 포함되지 않으며 결과는 GAS가 다시 채점합니다.
+- 이름 대신 별명이나 학생 번호 사용을 권장합니다.
+- 수업 코드는 관리자 비밀번호가 아닙니다.
+
+## 다음 확장
+
+게임 선택 화면을 추가하고 동일한 수업·문제 API 위에 `판다의 대나무 오르기`를 별도 게임 모듈로 연결할 수 있습니다.
+
+## 이미지 자산
+
+첫 화면의 투명 배경 청룡열차(`dragon-coaster-hero-v2.png`), 완벽 정답 승천 장면(`dragon-coaster-ascension.png`), 정답 상승 장면(`dragon-coaster-uphill-v2.png`), 오답 하강 장면(`dragon-coaster-downhill-v2.png`)은 프로젝트용으로 생성한 독창적인 이미지이며 `dist/assets`에 포함되어 있습니다.
