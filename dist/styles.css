@@ -126,3 +126,6 @@
 .word-card>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .word-card .wc-zh{line-height:1.25}
 .word-card .wc-ko{margin-top:10px;padding-top:10px}
+
+/* The 2D motion canvas draws a second set of rails on top of the 3D rail; hide it while the 3D view runs. */
+.ride-scene.webgl-active .motion-canvas{display:none!important}
